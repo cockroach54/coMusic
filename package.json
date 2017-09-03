@@ -1,0 +1,28 @@
+{
+  "name": "package",
+  "version": "1.0.0",
+  "description": "",
+  "main": "restApi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "cheerio": "^0.22.0",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.5.6",
+    "express": "^4.15.2",
+    "express-session": "^1.15.2",
+    "formidable": "^1.1.1",
+    "https": "^1.0.0",
+    "jstoxml": "^0.2.4",
+    "libxmljs": "^0.18.4",
+    "mongoose": "^4.9.3",
+    "request": "^2.81.0",
+    "rimraf": "^2.6.1",
+    "session-file-store": "^1.0.0",
+    "ytdl-core": "^0.12.1"
+  }
+}

@@ -1,0 +1,311 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
+        <link type='text/css' href="comusic.css" rel='stylesheet'>
+        <title>CoMusic</title>
+        
+    </head>
+    <body>
+        <header>
+            <h1 id='title'>CoMusic</h1>
+<!--            <a href="#title"><img src="imgsrc/top.png" class='up'></a>-->
+    <!--여기는 뮤직플레이어-->
+            <div id='playerSec'>
+                <audio id='coPlayer' controls></audio>
+                <div id='curSong' style="height:30px">
+                    <div id='aa'>재생중인 곡이 없습니다.</div>
+                    <div id='bb'>
+                        <i class='material-icons' id='preBtn'>skip_previous</i>
+                        <i class='material-icons' id='playBtn' >play_arrow</i>
+                        <i class='material-icons' id='pauseBtn' style='display:none'>pause</i>
+                        <i class='material-icons' id='nextBtn'>skip_next</i>
+                    </div>
+                </div>
+                <div class></div>
+                <ol id='trkList'></ol>
+                <div id=subMenu>
+                    현재곡<div id='dur'>0분 0초</div> 
+                    총 재생시간<div id='totDur'>0분 0초</div>
+<!--                    currentTime<div id='cur'></div>-->
+                </div>
+            </div>
+        </header>
+        
+        <div id='loading' style='display:none'>
+            <img src='imgsrc/loading3.gif'>
+        </div>
+        <div id='subPlay' style='display:none'>
+            <i class='material-icons' id='subPlayBtn'>play_circle_filled</i>
+            <i class='material-icons' id='subPauseBtn' style='display:none'>pause_circle_filled</i>
+        </div>
+        
+        <footer>
+            <div id='cngBtn' class="buttonF">
+                <i class='material-icons'>library_music</i><br/>top51-100
+            </div><div id='getAll' class="buttonF">
+                <i class='material-icons'>open_in_new</i><br/>저장된 목록
+            </div><div id='selectBtn' class="buttonF">
+                <i class='material-icons'>queue_music</i><br/>노래 목록
+            </div><div id='clearBtn' class="buttonF">
+                <i class='material-icons'>delete_sweep</i><br/>목록 지우기
+            </div><div id='shakeBtn' class="buttonF">
+                <i class='material-icons'>shuffle</i><br/>순서 섞기
+            </div><a href="#title"><div id='up' class="buttonF">
+                <i class='material-icons'>vertical_align_top</i><br/>맨위로
+            </div></a>
+        </footer>
+        <script type="text/javascript" src="coPlayer.js"></script>
+<!--탑50 카드 컴포넌트-->
+        <section class='mid'>
+
+        <% for(var i=0; i<50; i++){ %>
+            <% var idx=i; %>
+
+        <div class='cntr' id='cntr<%=idx%>' onclick='spreadDown(this)'>
+            <h4><%=idx + 1%></h4>
+            <i class='material-icons' id='cntrBtn<%=idx%>' onclick='spreadUp(event)' style='display:none; width:30px; height:30px'>keyboard_arrow_up</i>
+            <h4><%=item.name[idx]%></h4>
+            <h4><%=item.song[idx]%></h4>
+            <i class='material-icons' id='mvIcon<%=idx%>'>expand_more</i>
+<!--            <i class='material-icons' id='mvIcon<%=idx%>'>more_horiz</i>-->
+            
+            <div class='check' id='check<%=idx%>' style='display:none; position:absolute' onclick='addCheck(event)'></div>
+            <div class='folder' id='folder<%=idx%>' style='height:0px'>
+                <div class='innerFolder' id='innerFolder<%=idx%>'>
+                    <div class ='firstFloor' id ='firstFloor<%=idx%>'>
+                        <div class='genie'>
+                            <img src='<%=item.img[idx]%>' id='album<%=idx%>' style='margin:auto'><br/>
+<!--
+                            <h5>순위: <%=idx + 1%>위</h5>
+                            <h5>가수: <%=item.name[idx]%></h5>
+                            <h5>노래: <%=item.song[idx]%></h5>
+-->
+                        </div>
+<!--                        <div class='partition'></div>-->
+                        <p class="lyrics" id='lyrics<%=idx%>'></p>
+                    </div>
+                    <div class="youtube" id='youtube<%=idx%>'>
+<!--                        <iframe></iframe>-->
+                    </div>
+                    <article class='news' id='news<%=idx%>'>
+                        <div class='newsBtn' id='newsBtn<%=idx%>' onclick='spreadNews(event)'>
+                            <i class='material-icons'>fiber_new</i>관련 뉴스 보기
+                        </div><br/>
+                    </article>
+        
+                </div>        
+            </div>
+        </div>
+        <% } %>
+        <% { %>
+                <div style='height:50px; clear:both'></div>
+                <div id='cover' style="display:none"></div>
+        <% } %>
+        </section>
+                
+            <script>
+                //cafe24
+                var serverIP = 'comusic.cafe24app.com';
+                //var serverIP = '<%=item.ipAdd[0]%><%=item.ipAdd[1]%>';
+                console.log('ip: ', serverIP);
+            
+                function spreadDown(e){ //this 로받았음
+                    var idx = e.childNodes[1].innerHTML*1 - 1;
+                    console.log(idx);
+                    
+                    var folder = document.getElementById('folder'+idx);
+                    var cntrBtn = document.getElementById('cntrBtn'+idx);
+                    var mvIcon = document.getElementById('mvIcon'+idx);
+                    if(folder.style.height =='0px'){
+                        youtubeAjax(idx, function(videoObj){
+                            addYoutube(videoObj);
+                        });
+                        genieAjax(idx);
+                        var hgt = document.getElementById('innerFolder'+idx).clientHeight;
+                        //e.style.backgroundColor = 'transparent';
+                        e.style.height = hgt+60+'px'; //.cntr을 float:left로 해서 어쩔수 없이 같이 높이 키워줘야함
+                        //e.style.transform = 'rotate(360deg)';
+                        e.style.cursor = 'default';
+                        folder.style.height = hgt+'px';
+                        cntrBtn.style.display = 'initial';
+                        document.getElementById('cover').style.display= 'block';
+                        document.getElementById('cover').style.height= window.innerHeight*1.5+'px';
+                        mvIcon.style.display = 'none';
+                        
+                        var top = (window.innerHeight - hgt - 50)/2; //폰에서는 하단 목록바 대문에 이너헤이츠가 변함
+                        e.style.position = 'fixed';
+                        e.style.margin = 0;
+                        e.style.width = document.body.clientWidth*0.8+'px';
+                        e.style.top = top+'px';
+                        //데스크톱 스크롤바 16px보정
+                        if(window.innerWidth > document.body.scrollWidth + 16) e.style.left = (window.innerWidth - 16 - e.style.width.replace("px",'')*1)/2+'px';
+                        else e.style.left = (window.innerWidth -e.style.width.replace("px",'')*1)/2+'px';
+                        //e.innerText = window.innerWidth +' '+ e.style.width + e.style.left;
+                        e.style.zIndex = 999;
+                        e.style.backgroundColor = '#d1c4e9';
+                        e.style.border = 'none';
+                        e.style.boxShadow = '3px 3px 5px gray';
+                        folder.style.opacity = 1;
+                    }               
+                }
+                
+                function spreadUp(e){ //event로 받음
+                    e.stopPropagation(); //이벤트 버블링 취소
+                    
+                    var el = e.target; //newsBtn element
+                    //console.log('speradup...');
+                    el.style.display = 'none';
+                    var idx = el.getAttribute('id');
+                    idx = idx.substring(idx.indexOf('Btn')+3);
+                    var cntr = el.parentNode;
+                    var folder = document.getElementById('folder'+idx);
+                    var mvIcon = document.getElementById('mvIcon'+idx);
+                    var news = document.getElementById('news'+idx);
+                    //뉴스 펼쳤을때도 원래자리 복귀
+                    if(news.clientHeight>=100) cntr.style.transform = 'translate(0px, 0px)';
+                    
+                    mvIcon.style.display = 'initial';
+                    cntr.style.position = 'relative';
+                    cntr.style.left = '0';
+                    cntr.style.top = '0';
+                    cntr.style.margin = '1%';
+                    cntr.style.backgroundColor = '#d1c4e9';
+                    cntr.style.height = '110px';
+                    cntr.style.width = 31+'%';
+                    //cntr.style.transform = 'rotate(-360deg)';
+                    cntr.style.cursor = 'pointer';
+                    cntr.style.boxShadow = 'none';
+                    cntr.style.border = '5px solid #d1c4e9';
+                    cntr.style.zIndex = -1;
+                    folder.style.height = '0px';
+                    folder.style.opacity = 0;
+                    document.getElementById('cover').style.display= 'none';
+                }
+                
+                function spreadNews(e){ //event로 받음
+                    e.stopPropagation(); //이벤트 버블링 취소
+                    
+                    var el = e.target; //newsBtn element
+                    var idx = el.getAttribute('id');
+                    idx = idx.substring(idx.indexOf('Btn')+3);
+                    //console.log('idx: ', idx);
+                    
+                    var folder = document.getElementById('folder'+idx);
+                    var cntr = document.getElementById('cntr'+idx);
+                    var fir = document.getElementById('firstFloor'+idx);
+                    
+                    if(el.parentNode.clientHeight<100){
+                        var firHgt = fir.clientHeight; //style.height는 auto라서 안먹힘
+                        fir.style.height = 0;
+                        cntr.style.height = cntr.clientHeight+110+'px';
+                        //늘어나는길이의 절반만 이동
+                        cntr.style.transform = 'translate(0px, '+(-110*0.6)+'px)';
+                        folder.style.height = folder.clientHeight+110+'px';
+                        el.parentNode.style.height = 140+firHgt+'px';
+                        el.innerHTML = '관련 뉴스 접기';
+                        naverAjax(idx);
+                    }
+                    else{
+                        fir.style.height = '140px'; //firstFloor
+                        cntr.style.height = cntr.clientHeight-110+'px';
+                        cntr.style.transform = 'translate(0px, 0px)'; //??????
+                        folder.style.height = folder.clientHeight-110+'px';
+                        el.parentNode.style.height = '30px';
+                        el.innerHTML = '<i class="material-icons">fiber_new</i>관련 뉴스 보기';
+                    }
+                    
+                }
+                //ajax call
+                function youtubeAjax(idx, callback){
+                    var httpRequest;
+                    if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
+                    else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    
+                    httpRequest.open('GET', 'http://'+serverIP+'/youtubeVideos/'+idx, true);
+                    //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    httpRequest.send('null');
+                    
+                    httpRequest.onreadystatechange = function(){
+                        if(httpRequest.readyState==4){
+//                            if(httpRequest.responseText=='304'){
+//                                console.log('CASHED');
+//                                return;
+//                            }
+                            if(httpRequest.status==200){ //이건 클라이언트꺼 서버것 아님
+                                //youtube iframe 삽입
+                                //item이 배열로 안오고 ''없는 문자열로 들어옴 황당 ㅜ
+                                var res = JSON.parse(httpRequest.responseText);
+                                console.log(res); //makeCustomList()에 사용
+                                return callback(res);  
+                            }
+                            else console.error('server has errors.');
+                        }
+                    };
+                }
+                
+                function addYoutube(videoObj){
+                    document.getElementById('youtube'+videoObj.idx).innerHTML = 
+                    '<iframe height="150" src="http://www.youtube.com/embed/'+videoObj.videoId+'?vq=light&autoplay=0&rel=0" frameborder="0" allowfullscreen></iframe>';
+                }
+                
+                function genieAjax(idx){
+                    var httpRequest;
+                    if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
+                    else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    
+                    httpRequest.open('GET', 'http://'+serverIP+'/genieLyrics/'+idx, true);
+                    //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    httpRequest.send('null');
+                    
+                    httpRequest.onreadystatechange = function(){
+                        if(httpRequest.readyState==4){
+                            if(httpRequest.status==200){ //이건 클라이언트꺼 서버것 아님
+                                var lyrics = httpRequest.responseText;
+                                document.getElementById('lyrics'+idx).textContent = lyrics;  
+                            }
+                            else console.error('server has errors.');
+                        }
+                    };
+                }
+                
+                function naverAjax(idx){
+                    var httpRequest;
+                    if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
+                    else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    
+                    httpRequest.open('GET', 'http://'+serverIP+'/naverNews/'+idx, true);
+                    //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    httpRequest.send('null');
+                    
+                    httpRequest.onreadystatechange = function(){
+                        if(httpRequest.readyState==4){
+                            if(httpRequest.status==200){ //이건 클라이언트꺼 서버것 아님
+                                var news = httpRequest.responseText;
+                                if(!news) return;
+                                news=JSON.parse(news);
+                                var article = document.getElementById('news'+idx); 
+                                console.log(news);
+                                news.newsLink.forEach(function(el, i){  //버블링, 중복 캐싱 필요
+                                    var articleHtml='';
+                                    articleHtml += '<h4>'+news.title[i]+'</h4>';
+                                    articleHtml += '<img class="newsImg" src="'+news.imgLink[i]+'">';
+                                    articleHtml += '<a href="'+el+'" target="_blank">';
+                                    articleHtml += '<p class="newsContent">'+ news.newsSmry[i].replace(/<b>|<\/b>/g,'')+'<더보기>'+'</p>';
+                                    articleHtml += '</a>';
+                                    articleHtml = '<div class="newsSub">'+articleHtml+'</div><hr/>';
+                                    article.innerHTML+=articleHtml;
+                                });
+                            }
+                            else console.error('server has errors.');
+                        }
+                    };
+                }
+                
+            </script>
+    </body>
+</html>
