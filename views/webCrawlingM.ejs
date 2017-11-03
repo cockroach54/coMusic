@@ -48,9 +48,9 @@
             <div id='cngBtn' class="buttonF">
                 <i class='material-icons'>library_music</i><br/>top51-100
             </div><div id='getAll' class="buttonF">
-                <i class='material-icons'>open_in_new</i><br/>저장된 목록
+                <i class='material-icons'>open_in_new</i><br/>저장된 노래
             </div><div id='selectBtn' class="buttonF">
-                <i class='material-icons'>queue_music</i><br/>노래 목록
+                <i class='material-icons'>queue_music</i><br/>노래 듣기
             </div><div id='clearBtn' class="buttonF">
                 <i class='material-icons'>delete_sweep</i><br/>목록 지우기
             </div><div id='shakeBtn' class="buttonF">
@@ -110,7 +110,8 @@
                 
             <script>
                 //cafe24
-                var serverIP = 'comusic.cafe24app.com';
+                // var serverIP = 'comusic.cafe24app.com';
+                var serverIP = window.location.origin;
                 //var serverIP = '<%=item.ipAdd[0]%><%=item.ipAdd[1]%>';
                 console.log('ip: ', serverIP);
             
@@ -122,10 +123,10 @@
                     var cntrBtn = document.getElementById('cntrBtn'+idx);
                     var mvIcon = document.getElementById('mvIcon'+idx);
                     if(folder.style.height =='0px'){
+                        genieAjax(idx);
                         youtubeAjax(idx, function(videoObj){
                             addYoutube(videoObj);
                         });
-                        genieAjax(idx);
                         var hgt = document.getElementById('innerFolder'+idx).clientHeight;
                         //e.style.backgroundColor = 'transparent';
                         e.style.height = hgt+60+'px'; //.cntr을 float:left로 해서 어쩔수 없이 같이 높이 키워줘야함
@@ -226,7 +227,7 @@
                     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
                     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
                     
-                    httpRequest.open('GET', 'http://'+serverIP+'/youtubeVideos/'+idx, true);
+                    httpRequest.open('GET', serverIP+'/youtubeVideos/'+idx, true);
                     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     httpRequest.send('null');
                     
@@ -258,7 +259,7 @@
                     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
                     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
                     
-                    httpRequest.open('GET', 'http://'+serverIP+'/genieLyrics/'+idx, true);
+                    httpRequest.open('GET', serverIP+'/genieLyrics/'+idx, true);
                     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     httpRequest.send('null');
                     
@@ -278,7 +279,7 @@
                     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
                     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
                     
-                    httpRequest.open('GET', 'http://'+serverIP+'/naverNews/'+idx, true);
+                    httpRequest.open('GET', serverIP+'/naverNews/'+idx, true);
                     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     httpRequest.send('null');
                     

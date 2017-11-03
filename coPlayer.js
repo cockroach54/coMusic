@@ -264,7 +264,7 @@ document.getElementById('cngBtn').addEventListener('click', function(){
     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
     console.log('page changed!!!');
-    httpRequest.open('GET', 'http://'+serverIP+'/pages/'+page, true);
+    httpRequest.open('GET', serverIP+'/pages/'+page, true);
     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send('null');
 
@@ -357,7 +357,7 @@ function getAudioList(callback){
     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
 
-    httpRequest.open('GET', 'http://'+serverIP+'/audioList', true);
+    httpRequest.open('GET', serverIP+'/audioList', true);
     //js파일 달라도 serverIP 호이스팅 가능
     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send('null');
@@ -382,7 +382,7 @@ function selectMode(){
     var selectBtn = document.getElementById('selectBtn');
     if(cstm[0].style.display=='none'){
         selectBtn.style.color = 'black';
-        selectBtn.innerHTML="<i class='material-icons'>queue_music</i></br>목록선택 해제";
+        selectBtn.innerHTML="<i class='material-icons'>queue_music</i></br>노래선택 해제";
         var hgt = document.getElementById('coPlayer').clientHeight+ document.getElementById('subMenu').clientHeight + 15; //5*3=15
         //console.log(hgt);
         document.getElementById('playerSec').style.height = hgt+'px';
@@ -403,7 +403,7 @@ function selectMode(){
     }
     else{
         selectBtn.style.color = '#ff3d00';
-        selectBtn.innerHTML="<i class='material-icons'>queue_music</i></br>노래 목록";
+        selectBtn.innerHTML="<i class='material-icons'>queue_music</i></br>노래 듣기";
         var hgt = document.getElementById('playerSec').clientHeight - document.getElementById('subMenu').clientHeight + document.getElementById('curSong').style.height.replace('px','')*1;
         document.getElementById('playerSec').style.height = hgt+'px';
         document.getElementById('curSong').style.display = "block";
@@ -449,7 +449,7 @@ function addCheck(e){
         //console.log(cstmObj);
         
         var audioPath = videoObj.name+' '+videoObj.song;
-        audioPath = audioPath.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "");
+        audioPath = audioPath.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, "");
         audioPath = 'audioSample/'+ audioPath +'.mp3';
         srcArr.push(audioPath);
         trkList.innerHTML += ('<li class="track">'+audioPath.replace('audioSample/','')+'</li>');
@@ -514,7 +514,7 @@ function setAudioFile(videoObj, callback){
     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
 
-    httpRequest.open('POST', 'http://'+serverIP+'/getMp3', true);
+    httpRequest.open('POST', serverIP+'/getMp3', true);
     //js파일 달라도 serverIP 호이스팅 가능
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(query);
@@ -596,7 +596,7 @@ function deletenullAjax(errTitle, callback){
     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
     
     var query = 'errTitle='+errTitle;
-    httpRequest.open('POST', 'http://'+serverIP+'/deletenull', true);
+    httpRequest.open('POST', serverIP+'/deletenull', true);
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(query);
 
@@ -616,7 +616,7 @@ function sendSignalAjax(){
     var httpRequest;
     if(window.XMLHttpRequest) httpRequest = new XMLHttpRequest();
     else if(window.ActiveXObject) httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
-    httpRequest.open('GET', 'http://'+serverIP+'/stillhere', true);
+    httpRequest.open('GET', serverIP+'/stillhere', true);
     //httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send('null');
 

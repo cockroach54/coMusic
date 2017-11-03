@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var path = require('path');
-var opt = {path: path.resolve(__dirname, 'sessions'), ttl:100000};
+var opt = {path: path.join(__dirname, 'sessions'), ttl:100000};
 //cafe24
 //var opt = {path:'/home/hosting_users/lsw0504/apps/lsw0504_comusic/sessions', ttl: 10000};
 
@@ -12,7 +12,7 @@ var opt = {path: path.resolve(__dirname, 'sessions'), ttl:100000};
 app.set('view engine', 'ejs');
 //cafe24 절대경로
 //app.set('views', '/home/hosting_users/lsw0504/apps/lsw0504_comusic/views');
-app.set('views', path.resolve(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 //maxAge설정해놔야 세션 금방 자동삭제안됨 - 아님 이건 쿠키만료일임 ㅜㅜ
 app.use(session({
     resave:false, saveUninitialized:false, secret:'Secret Key', maxAge: Date.now()+(2 * 3600 * 1000), store:new FileStore(opt)
@@ -37,7 +37,7 @@ var audioList=[];
 // 접속때마다 audioList갱신
 function readAudioList(){
     //var audios = fs.readFileSync('./home/hosting_users/lsw0504/apps/lsw0504_comusic/audioList.json'); //cafe24 
-    var audios = fs.readFileSync(path.resolve(__dirname, 'audioList.json'));
+    var audios = fs.readFileSync(path.join(__dirname, 'audioList.json'));
     audioList = JSON.parse(audios);
 }
 //post요청 뒤에 디비 업데이트
@@ -45,7 +45,7 @@ function saveToJson(){
 //alert("정말 저장하겠습니까?"), confirm(), prompt()여기서 무용지물, 프론트에서 사용
 //cafe24
 //    fs.writeFile('./home/hosting_users/lsw0504/apps/lsw0504_comusic/audioList.json', JSON.stringify(audioList), function(err){
-    fs.writeFile(path.resolve(__dirname, 'audioList.json'), JSON.stringify(audioList), function(err){
+    fs.writeFile(path.join(__dirname, 'audioList.json'), JSON.stringify(audioList), function(err){
         if(err){
             console.error('save json file failed!');
             return;
@@ -57,7 +57,6 @@ function saveToJson(){
 //----------ip주소 가져와서 클라이언트에게 던져주기
 var interfaces = os.networkInterfaces();
 var addresses = [];
-//var port = 4000;
 var port = 8001; //cafe24 port번호 8001
 for (var k in interfaces) {
     for (var k2 in interfaces[k]) {
@@ -72,7 +71,7 @@ console.log(addresses); //[0] = ip, [1] = port
 //cafe24
 //app.use(express.static('./home/hosting_users/lsw0504/apps/lsw0504_comusic/'));
 //-----------라우팅 필요
-app.use(express.static(path.resolve(__dirname)));
+app.use(express.static(path.join(__dirname)));
 
 app.get('/audioList', function(req, res){
     var date = new Date;
@@ -225,7 +224,7 @@ function makeMidAjax(req, res, page, callback){
         var buffer = new Buffer(body, 'binary');
         var album = [];
         var $ = cheerio.load(buffer);
-        $('img', 'div.list-wrap').each(function(i, el){
+        $('img', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var img = $(this).attr('src');
             //아이콘 제거
@@ -235,21 +234,21 @@ function makeMidAjax(req, res, page, callback){
                 else resultImg.splice(album.length-1+50, 1, album[album.length-1]);;
             }
         });
-        $('a.artist', 'div.list-wrap').each(function(i, el){
+        $('a.artist', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var name = $(this).text();
-            name = name.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "");
+            name = name.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, "");
             if(page==1) resultName.splice(i, 1, name);
             else resultName.splice(i+50, 1, name);
         });
-        $('a.title', 'div.list-wrap').each(function(i, el){
+        $('a.title', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var song = $(this).text();
-            song = song.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "");
+            song = song.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, "");
             if(page==1) resultSong.splice(i, 1, song);
             else resultSong.splice(i+50, 1, song);
         });
-        $('div.list-wrap').children('div').each(function(i, el){
+        $('tr', 'div.music-list-wrap').each(function(i, el){
             //this===el, 단 $()안에 넣어야힘
             var songNum = $(el).attr('songid');
             if(page==1) resultSongNum.splice(i, 1, songNum);
@@ -272,26 +271,26 @@ function makeFirstPage(req, res, page, callback){
         var album = [];
         var buffer = new Buffer(body, 'binary');
         var $ = cheerio.load(buffer);
-        $('img', 'div.list-wrap').each(function(i, el){
+        $('img', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var img = $(this).attr('src');
             //아이콘 제거
             if(img.indexOf('flac.png')<0) album.push(img);
             resultImg.splice(album.length-1, 1, album[album.length-1]);
         });
-        $('a.artist', 'div.list-wrap').each(function(i, el){
+        $('a.artist', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var name = $(this).text();
-            name = name.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "");
+            name = name.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, "");
             resultName.splice(i, 1, name);
         });
-        $('a.title', 'div.list-wrap').each(function(i, el){
+        $('a.title', 'div.music-list-wrap').each(function(i, el){
            //console.log(this); 
             var song = $(this).text();
-            song = song.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, "");
+            song = song.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, "");
             resultSong.splice(i, 1, song);
         });
-        $('div.list-wrap').children('div').each(function(i, el){
+        $('tr', 'div.music-list-wrap').each(function(i, el){
             //this===el, 단 $()안에 넣어야힘
             var songNum = $(el).attr('songid');
             resultSongNum.splice(i, 1, songNum);
@@ -537,7 +536,7 @@ function getNewslink(newsObj, length, req, res){
     
     if(length<0){
         console.log(newsObj);
-        console.log(req.session.genieRes);
+        // console.log(req.session.genieRes);
         res.send(newsObj);
         return;
     }
@@ -602,9 +601,8 @@ function getMp3(videoArr, startIdx, length, req, callback){ //재귀호출
         var opt={quality:itag};
         //디렉토리패쓰에 있으면 안되는 문자 제거 '?' 등..
         var title = req.session.genieRes.name[startIdx]+" "+req.session.genieRes.song[startIdx]+'.mp3';
-        title = title.replace(/\\|\/|:|\*|\?|"|<|>|\|/g, ""); //특수문자 제거
-        var output = path.resolve(__dirname, 'audioSample', title);
-        
+        title = title.replace(/\n|\r|\\|\/|:|\*|\?|"|<|>|\|/g, ""); //특수문자 제거
+        var output = path.join(__dirname, 'audioSample', title);
         
         //재다운로드 방지, 조회수 증가.
         for(var i=0; i<audioList.length; i++){
@@ -618,7 +616,6 @@ function getMp3(videoArr, startIdx, length, req, callback){ //재귀호출
                 return getMp3(videoArr, startIdx, length, req, callback);
             }
         }
-        
         var video = ytdl(url, opt);
         video.pipe(fs.createWriteStream(output));
         video.on('progress', function(chunkLength, downloaded, total) {
@@ -654,7 +651,7 @@ function deleteAll(list){ //동기식으로 작동
     list.forEach(function(item){
         //cafe24  
 //        var path = './home/hosting_users/lsw0504/apps/lsw0504_comusic/audioSample/'+item.title;
-        var path = path.resolve(__dirname, 'audioSample', item.title);
+        var path = path.join(__dirname, 'audioSample', item.title);
         try{
             fs.unlinkSync(path);
             cnt++;
@@ -673,7 +670,7 @@ function deleteAll(list){ //동기식으로 작동
 function deleteDir(){
     //cafe24
 //    var pathVal = './home/hosting_users/lsw0504/apps/lsw0504_comusic/audioSample';
-    var pathVal = path.resolve(__dirname, 'audioSample');
+    var pathVal = path.join(__dirname, 'audioSample');
     rimraf(pathVal, function (){
         console.log('deleted dir:',pathVal);
         fs.mkdirSync(pathVal);
